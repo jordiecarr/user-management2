@@ -36,8 +36,19 @@
       <div class="card-footer text-muted">
         {{ post.created_at|date:"F j, Y" }}
       </div>
+      <div class="card-body">
+        <h6>Comments:</h6>
+        {% for comment in post.comments.all %}
+          <p>{{ comment.content }}</p>
+          <p>By: {{ comment.author }}</p>
+          <p>Posted at: {{ comment.created_at|date:"F j, Y" }}</p>
+        {% empty %}
+          <p>No comments yet.</p>
+        {% endfor %}
+      </div>
     </div>
   {% empty %}
     <p>No posts yet.</p>
   {% endfor %}
 {% endblock %}
+
