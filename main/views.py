@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, PostForm
+from .forms import RegisterForm, PostForm, CommentForm
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
-from .models import Post
+from .models import Post, Comment
+from .forms import CommentForm
+
 
 
 @login_required(login_url="/login")
@@ -74,3 +76,27 @@ def sign_up(request):
         form = RegisterForm()
 
     return render(request, 'registration/sign_up.html', {"form": form})
+
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    return render(request, 'main/post_detail.html', {'post': post})
+
+def add_comment(request, post_id):
+    post = Post.objects.get(id=post_id)
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect('home')
+    else:
+        form = CommentForm()
+    
+    context = {
+        'form': form,
+        'post': post,
+    }
+    return render(request, 'add_comment.html', context)
